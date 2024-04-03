@@ -7,8 +7,8 @@
 
 	let createVouchModalInputs = {
 		show: false,
-		stars: 0,
-		review: ''
+		review: '+rep',
+		stars: 5
 	};
 
 	let vouchesList: {
@@ -19,79 +19,41 @@
 		avatar_url: string;
 	}[] = [];
 
-	async function addVouch() {
-		// check if user is authenticated
-		if (!data.session) {
-			alert('Logging you in. Visit this page again after logging in.');
-			data.supabase.auth.signInWithOAuth({
-				provider: 'discord'
-			});
+	async function getVouches() {
+		const res = await fetch('/api/vouch');
+		const json = await res.json();
+
+		if (json.error) {
+			alert(json.error);
 			return;
 		}
 
-		const userid = data.session.user.user_metadata.provider_id;
-		const username = data.session.user.user_metadata.full_name;
-		const avatar = data.session.user.user_metadata.avatar_url;
-
-		const vouch = createVouchModalInputs.review;
-		const stars = createVouchModalInputs.stars;
-
-		if (!vouch || !stars) return alert('Invalid inputs.');
-
-		if (isNaN(stars) || stars < 1 || stars > 5) return alert('Invalid stars.');
-
-		// check if user has already vouched
-		const { data: vouches, error } = await data.supabase
-			.from('vouches')
-			.select('*')
-			.eq('user_id', userid);
-
-		if (error) {
-			console.error(error);
-			return;
-		}
-
-		if (vouches.length > 0) {
-			return alert('You have already vouched.');
-		}
-
-		// insert vouch
-
-		await data.supabase.from('vouches').insert({
-			stars: stars,
-			review: vouch,
-			user_id: userid,
-			username: username,
-			avatar_url: avatar
-		});
-
-		createVouchModalInputs.show = false;
-		createVouchModalInputs.stars = 0;
-		createVouchModalInputs.review = '';
-
-		getVouches();
-
-		// console.debug(data.session.user.user_metadata);
+		vouchesList = json.data;
 	}
 
-	async function getVouches() {
-		const { data: vouches, error } = await data.supabase
-			.from('vouches')
-			.select('*')
-			.order('created_at', { ascending: false });
+	async function addVouch() {
+		const res = await fetch('/api/vouch', {
+			method: 'POST',
+			body: JSON.stringify({
+				review: createVouchModalInputs.review,
+				stars: createVouchModalInputs.stars
+			})
+		});
 
-		if (error) {
-			console.error(error);
+		const json = await res.json();
+
+		if (json.error) {
+			alert(json.error);
 			return;
 		}
 
-		vouchesList = vouches;
-
-		console.debug(vouches);
+		vouchesList = json.data;
+		getVouches();
 	}
 
 	onMount(() => {
 		getVouches();
+		console.log(vouchesList);
 	});
 </script>
 
