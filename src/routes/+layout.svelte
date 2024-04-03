@@ -31,7 +31,7 @@
 	<meta property="og:image" content="https://bddy.lol/favicon.png" />
 
 	<!-- Twitter Meta Tags -->
-	<meta name="twitter:card" content="summary_large_image" />
+	<!-- <meta name="twitter:card" content="summary_large_image" /> -->
 	<meta property="twitter:domain" content="bddy.lol" />
 	<meta property="twitter:url" content="https://bddy.lol" />
 	<meta name="twitter:title" content="bddy.lol" />
