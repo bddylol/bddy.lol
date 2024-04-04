@@ -2,17 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ locals }) => {
-	const { supabase, getSession } = locals;
-
-	const session = await getSession();
-
-	if (!session) {
-		return json({ error: 'Unauthorized' }, { status: 401 });
-	}
-
-	const userid = session.user.user_metadata.provider_id;
-	const username = session.user.user_metadata.full_name;
-	const avatar = session.user.user_metadata.avatar_url;
+	const { supabase } = locals;
 
 	const { data, error } = await supabase.from('vouches').select('*');
 
@@ -37,7 +27,13 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const session = await getSession();
 
 	if (!session) {
-		return json({ error: 'Unauthorized' }, { status: 401 });
+		return json(
+			{
+				error: 'Redirecting you to login. If this fails, please manually add your stuffs.',
+				code: 'login_needed'
+			},
+			{ status: 401 }
+		);
 	}
 
 	if (typeof review !== 'string' || typeof stars !== 'number') {

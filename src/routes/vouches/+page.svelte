@@ -44,6 +44,11 @@
 
 		if (json.error) {
 			alert(json.error);
+			if (json.code == 'login_needed') {
+				data.supabase.auth.signInWithOAuth({
+					provider: 'discord'
+				});
+			}
 			return;
 		}
 
